@@ -512,6 +512,10 @@
             document.getElementById('player2').addEventListener('change', updateResultOptions);
 
             render();
+
+            // Start background refresh so other devices/tabs see changes without reload
+            startAutoRefresh();
+            setupStorageSync();
         }
 
         // Update result dropdown options with player names
@@ -557,15 +561,61 @@
                     games,
                     updatedAt: new Date().toISOString()
                 };
-                await fetch(window.SYNC_ENDPOINT, {
+                const res = await fetch(window.SYNC_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                     mode: 'cors',
                 });
+                if (res && res.ok) {
+                    // Pull the just-committed JSON and refresh UI immediately
+                    fetchRemoteDataIfChanged();
+                } else {
+                    console.error('Remote sync returned non-OK status');
+                }
             } catch (err) {
                 console.error('Remote sync failed', err);
             }
+        }
+
+        // --- Auto refresh from GitHub Pages ---
+        const AUTO_REFRESH_INTERVAL_MS = 15000; // 15s
+        let autoRefreshTimer = null;
+
+        function startAutoRefresh() {
+            clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(fetchRemoteDataIfChanged, AUTO_REFRESH_INTERVAL_MS);
+        }
+
+        async function fetchRemoteDataIfChanged() {
+            try {
+                const res = await fetch('chess-data.json?ts=' + Date.now(), { cache: 'no-store' });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || !Array.isArray(data.players) || !Array.isArray(data.games)) return;
+
+                const localStr = JSON.stringify({ players, games });
+                const remoteStr = JSON.stringify({ players: data.players, games: data.games });
+                if (remoteStr !== localStr) {
+                    players = data.players;
+                    games = data.games;
+                    save(); // updates localStorage
+                    render();
+                }
+            } catch (_) { /* ignore transient errors */ }
+        }
+
+        // Keep multiple tabs in sync instantly
+        function setupStorageSync() {
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'chessPlayers' || e.key === 'chessGames') {
+                    const savedPlayers = localStorage.getItem('chessPlayers');
+                    const savedGames = localStorage.getItem('chessGames');
+                    if (savedPlayers) players = JSON.parse(savedPlayers);
+                    if (savedGames) games = JSON.parse(savedGames);
+                    render();
+                }
+            });
         }
 
         // Add a player
