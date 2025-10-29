@@ -471,6 +471,8 @@
     <script>
         // Remote sync endpoint (set this to your deployed endpoint URL)
         window.SYNC_ENDPOINT = 'https://ancient-recipe-44cd.guy-merin.workers.dev/';
+        // Fetch from raw GitHub URL to bypass Pages CDN caching
+        window.RAW_JSON_URL = 'https://raw.githubusercontent.com/guymerin/Chess-leaderboard/main/chess-data.json';
         // Data structure
         let players = [];
         let games = [];
@@ -568,8 +570,9 @@
                     mode: 'cors',
                 });
                 if (res && res.ok) {
-                    // Pull the just-committed JSON and refresh UI immediately
-                    fetchRemoteDataIfChanged();
+                    // Wait for GitHub to process commit, then fetch fresh data
+                    console.log('Sync successful, fetching updated data...');
+                    setTimeout(() => fetchRemoteDataIfChanged(), 2000);
                 } else {
                     console.error('Remote sync returned non-OK status');
                 }
@@ -589,7 +592,9 @@
 
         async function fetchRemoteDataIfChanged() {
             try {
-                const res = await fetch('chess-data.json?ts=' + Date.now(), { cache: 'no-store' });
+                // Fetch from raw GitHub to bypass Pages CDN caching
+                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
+                const res = await fetch(url, { cache: 'no-store' });
                 if (!res.ok) return;
                 const data = await res.json();
                 if (!data || !Array.isArray(data.players) || !Array.isArray(data.games)) return;
@@ -597,12 +602,17 @@
                 const localStr = JSON.stringify({ players, games });
                 const remoteStr = JSON.stringify({ players: data.players, games: data.games });
                 if (remoteStr !== localStr) {
+                    console.log('Remote data changed, updating UI...');
                     players = data.players;
                     games = data.games;
-                    save(); // updates localStorage
+                    // Update localStorage WITHOUT triggering another sync
+                    localStorage.setItem('chessPlayers', JSON.stringify(players));
+                    localStorage.setItem('chessGames', JSON.stringify(games));
                     render();
                 }
-            } catch (_) { /* ignore transient errors */ }
+            } catch (err) {
+                console.error('Fetch remote data failed:', err);
+            }
         }
 
         // Keep multiple tabs in sync instantly
