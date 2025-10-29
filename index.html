@@ -368,6 +368,45 @@
             .alert-success { background: #20462a; color: #b8f7c2; border-color: #2b5a36; }
             .alert-error { background: #4a1f24; color: #ffd1d6; border-color: #6a2a31; }
         }
+
+        /* Refresh button */
+        .refresh-btn {
+            position: fixed;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            right: calc(20px + env(safe-area-inset-right));
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.6);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .refresh-btn.spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -467,6 +506,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Floating Refresh Button -->
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Refresh data from GitHub">
+        🔄
+    </button>
 
     <script>
         // Remote sync endpoint (set this to your deployed endpoint URL)
@@ -633,6 +677,49 @@
                     render();
                 }
             });
+        }
+
+        // Manual refresh - force fetch from GitHub
+        async function manualRefresh() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('spinning');
+            btn.disabled = true;
+
+            try {
+                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
+                const res = await fetch(url, { cache: 'no-store' });
+                
+                if (!res.ok) {
+                    alert('Failed to fetch data from GitHub');
+                    return;
+                }
+                
+                const data = await res.json();
+                if (!data || !Array.isArray(data.players) || !Array.isArray(data.games)) {
+                    alert('Invalid data format');
+                    return;
+                }
+
+                players = data.players;
+                games = data.games;
+                localStorage.setItem('chessPlayers', JSON.stringify(players));
+                localStorage.setItem('chessGames', JSON.stringify(games));
+                render();
+                
+                console.log('✓ Manually refreshed from GitHub');
+                
+                // Brief success feedback
+                btn.textContent = '✓';
+                setTimeout(() => {
+                    btn.textContent = '🔄';
+                }, 1000);
+            } catch (err) {
+                console.error('Manual refresh failed:', err);
+                alert('Error refreshing data: ' + err.message);
+            } finally {
+                btn.classList.remove('spinning');
+                btn.disabled = false;
+            }
         }
 
         // Add a player
