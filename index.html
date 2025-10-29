@@ -469,6 +469,8 @@
     </div>
 
     <script>
+        // Remote sync endpoint (set this to your deployed endpoint URL)
+        window.SYNC_ENDPOINT = '';
         // Data structure
         let players = [];
         let games = [];
@@ -537,6 +539,33 @@
         function save() {
             localStorage.setItem('chessPlayers', JSON.stringify(players));
             localStorage.setItem('chessGames', JSON.stringify(games));
+            scheduleSync();
+        }
+
+        // Debounced background sync to remote
+        let syncTimer = null;
+        function scheduleSync() {
+            if (!window.SYNC_ENDPOINT) return;
+            clearTimeout(syncTimer);
+            syncTimer = setTimeout(syncToRemote, 500);
+        }
+
+        async function syncToRemote() {
+            try {
+                const payload = {
+                    players,
+                    games,
+                    updatedAt: new Date().toISOString()
+                };
+                await fetch(window.SYNC_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    mode: 'cors',
+                });
+            } catch (err) {
+                console.error('Remote sync failed', err);
+            }
         }
 
         // Add a player
