@@ -478,11 +478,11 @@
                 <h2>Record Game Result</h2>
                 <div id="addGameAlert" class="alert"></div>
                 <div class="form-group">
-                    <label for="player1">Player 1</label>
+                    <label for="player1">⚪ White Player</label>
                     <select id="player1"></select>
                 </div>
                 <div class="form-group">
-                    <label for="player2">Player 2</label>
+                    <label for="player2">⚫ Black Player</label>
                     <select id="player2"></select>
                 </div>
                 <div class="form-group">
@@ -497,9 +497,9 @@
                 <div class="form-group">
                     <label for="result">Result</label>
                     <select id="result">
-                        <option value="1">Player 1 Wins</option>
+                        <option value="1">White Wins</option>
                         <option value="0">Draw</option>
-                        <option value="-1">Player 2 Wins</option>
+                        <option value="-1">Black Wins</option>
                     </select>
                 </div>
                 <button class="btn" onclick="addGame()">Record Game</button>
@@ -511,7 +511,7 @@
                     Match Overview
                     <div class="toggle-view">
                         <button class="active" onclick="showGridView()">Grid View</button>
-                        <button onclick="showHistoryView()">Game History</button>
+                        <button class="admin-only" onclick="showHistoryView()">Game History</button>
                     </div>
                 </h2>
                 
@@ -519,7 +519,7 @@
                     <table id="matchGrid" class="match-grid"></table>
                 </div>
                 
-                <div id="historyView" class="game-history" style="display: none;"></div>
+                <div id="historyView" class="game-history admin-only" style="display: none;"></div>
             </div>
 
             <!-- Players Section (Admin Only) -->
@@ -640,15 +640,15 @@
 
             if (player1 && player2) {
                 resultSelect.innerHTML = `
-                    <option value="1">${player1} Wins</option>
+                    <option value="1">⚪ ${player1} Wins (White)</option>
                     <option value="0">Draw</option>
-                    <option value="-1">${player2} Wins</option>
+                    <option value="-1">⚫ ${player2} Wins (Black)</option>
                 `;
             } else {
                 resultSelect.innerHTML = `
-                    <option value="1">Player 1 Wins</option>
+                    <option value="1">White Wins</option>
                     <option value="0">Draw</option>
-                    <option value="-1">Player 2 Wins</option>
+                    <option value="-1">Black Wins</option>
                 `;
             }
         }
@@ -820,12 +820,12 @@
             const result = parseInt(document.getElementById('result').value);
 
             if (!player1 || !player2) {
-                showAlert('addGameAlert', 'Please select both players', 'error');
+                showAlert('addGameAlert', 'Please select both White and Black players', 'error');
                 return;
             }
 
             if (player1 === player2) {
-                showAlert('addGameAlert', 'A player cannot play against themselves', 'error');
+                showAlert('addGameAlert', 'White and Black must be different players', 'error');
                 return;
             }
 
