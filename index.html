@@ -407,6 +407,44 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+
+        /* Mode toggle */
+        .mode-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-toggle button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            min-height: 44px;
+        }
+
+        .mode-toggle button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .mode-toggle button.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        body.admin-mode .admin-only {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -415,6 +453,12 @@
             <h1>♟️ Chess Tournament Tracker</h1>
             <p class="subtitle">Track games, view leaderboards, and manage your chess tournament</p>
         </header>
+
+        <!-- Mode Toggle -->
+        <div class="mode-toggle">
+            <button id="playerModeBtn" class="active" onclick="setMode('player')">👤 Player Mode</button>
+            <button id="adminModeBtn" onclick="setMode('admin')">🔧 Admin Mode</button>
+        </div>
 
         <div class="dashboard">
             <!-- Leaderboard -->
@@ -478,8 +522,8 @@
                 <div id="historyView" class="game-history" style="display: none;"></div>
             </div>
 
-            <!-- Players Section -->
-            <div class="card">
+            <!-- Players Section (Admin Only) -->
+            <div class="card admin-only">
                 <h2>Players</h2>
                 <div id="playersList" class="players-list"></div>
                 
@@ -492,8 +536,8 @@
                 <button class="btn" onclick="addPlayer()">Add Player</button>
             </div>
 
-            <!-- Data Management Section -->
-            <div class="card">
+            <!-- Data Management Section (Admin Only) -->
+            <div class="card admin-only">
                 <h2>Data Management</h2>
                 <div class="form-group">
                     <button class="btn" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); margin-bottom: 10px;" onclick="exportData()">Export Data (JSON)</button>
@@ -522,6 +566,26 @@
         let games = [];
         let currentView = 'grid';
         let leaderboardView = 'overall'; // 'overall' or 'today'
+        let currentMode = 'player'; // 'player' or 'admin'
+
+        // Mode management
+        function setMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('chessMode', mode);
+            
+            // Update body class
+            if (mode === 'admin') {
+                document.body.classList.add('admin-mode');
+            } else {
+                document.body.classList.remove('admin-mode');
+            }
+            
+            // Update button states
+            document.getElementById('playerModeBtn').classList.toggle('active', mode === 'player');
+            document.getElementById('adminModeBtn').classList.toggle('active', mode === 'admin');
+            
+            console.log(`Switched to ${mode} mode`);
+        }
 
         // Initialize from JSON file and localStorage
         async function init() {
@@ -556,6 +620,10 @@
             // Add event listeners for player selection changes
             document.getElementById('player1').addEventListener('change', updateResultOptions);
             document.getElementById('player2').addEventListener('change', updateResultOptions);
+
+            // Restore saved mode (default to player mode)
+            const savedMode = localStorage.getItem('chessMode') || 'player';
+            setMode(savedMode);
 
             render();
 
