@@ -1,188 +1,24 @@
 {
   "players": [
-    "Sahib",
-    "Tim",
-    "Volkan",
-    "Guy",
-    "Yaro",
-    "Felix"
+    "A",
+    "B"
   ],
   "games": [
     {
-      "id": "1761609604416",
-      "player1": "Volkan",
-      "player2": "Sahib",
+      "id": "1",
+      "player1": "A",
+      "player2": "B",
       "result": 1,
-      "date": "2025-10-28",
+      "date": "2025-10-29",
       "gameType": "No timer"
     },
     {
-      "id": "1761609614600",
-      "player1": "Volkan",
-      "player2": "Sahib",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609628634",
-      "player1": "Volkan",
-      "player2": "Tim",
+      "id": "1761771702358",
+      "player1": "A",
+      "player2": "B",
       "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609634813",
-      "player1": "Volkan",
-      "player2": "Tim",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609641037",
-      "player1": "Volkan",
-      "player2": "Tim",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609654470",
-      "player1": "Volkan",
-      "player2": "Tim",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609670171",
-      "player1": "Guy",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609684650",
-      "player1": "Guy",
-      "player2": "Sahib",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609695591",
-      "player1": "Guy",
-      "player2": "Sahib",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609709916",
-      "player1": "Tim",
-      "player2": "Guy",
-      "result": -1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609718012",
-      "player1": "Tim",
-      "player2": "Guy",
-      "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609726579",
-      "player1": "Tim",
-      "player2": "Guy",
-      "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609768930",
-      "player1": "Volkan",
-      "player2": "Guy",
-      "result": 0,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609788538",
-      "player1": "Volkan",
-      "player2": "Guy",
-      "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609794617",
-      "player1": "Volkan",
-      "player2": "Guy",
-      "result": 1,
-      "date": "2025-10-28",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609541229",
-      "player1": "Tim",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609550133",
-      "player1": "Tim",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609555358",
-      "player1": "Tim",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609566141",
-      "player1": "Tim",
-      "player2": "Sahib",
-      "result": -1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609577208",
-      "player1": "Tim",
-      "player2": "Sahib",
-      "result": -1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609593413",
-      "player1": "Volkan",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
-    },
-    {
-      "id": "1761609599104",
-      "player1": "Volkan",
-      "player2": "Sahib",
-      "result": 1,
-      "date": "2025-10-27",
-      "gameType": "No timer"
+      "date": "2025-10-29",
+      "gameType": "5 min game"
     }
   ]
 }
