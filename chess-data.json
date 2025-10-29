@@ -1,8 +1,7 @@
 {
   "players": [
     "A",
-    "B",
-    "C"
+    "B"
   ],
   "games": [
     {
@@ -14,12 +13,12 @@
       "gameType": "No timer"
     },
     {
-      "id": "1761771671563",
+      "id": "1761771702358",
       "player1": "A",
       "player2": "B",
       "result": 1,
       "date": "2025-10-29",
-      "gameType": "No timer"
+      "gameType": "5 min game"
     }
   ]
 }
