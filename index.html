@@ -361,8 +361,15 @@
         body.dark-mode { color: #e6e6e6; }
         body.dark-mode .card { background: #1f1f1f; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
         body.dark-mode .leaderboard li { background: #262626; }
-        body.dark-mode .match-grid td { background: #1f1f1f; border-color: #333; }
-        body.dark-mode .match-grid td:first-child { background: #262626; }
+        body.dark-mode .score { color: #bb86fc; } /* Brighter purple for dark mode */
+        body.dark-mode .match-grid td { background: #1f1f1f; border-color: #333; color: #e6e6e6; }
+        body.dark-mode .match-grid td:first-child { background: #262626; color: #fff; }
+        body.dark-mode .match-grid th { background: #667eea; color: #fff; }
+        body.dark-mode .match-grid .win { background-color: #1b5e20 !important; color: #fff; }
+        body.dark-mode .match-grid .loss { background-color: #b71c1c !important; color: #fff; }
+        body.dark-mode .match-grid .draw { background-color: #f57f17 !important; color: #fff; }
+        body.dark-mode .match-grid .empty { background-color: #2a2a2a !important; color: #666; }
+        body.dark-mode .match-count { color: #aaa; }
         body.dark-mode .game-item { background: #262626; }
         body.dark-mode .alert-success { background: #20462a; color: #b8f7c2; border-color: #2b5a36; }
         body.dark-mode .alert-error { background: #4a1f24; color: #ffd1d6; border-color: #6a2a31; }
