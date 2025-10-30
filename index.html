@@ -324,13 +324,19 @@
 
         .toggle-view {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 5px;
             margin-bottom: 15px;
             margin-top: 15px;
             background: #f8f9fa;
             padding: 8px;
             border-radius: 8px;
+        }
+
+        .toggle-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
         }
 
         .toggle-view button {
@@ -358,7 +364,8 @@
             .stats { width: 100%; order: 3; text-align: left; }
             .score { order: 2; }
             .rank { order: 1; }
-            .toggle-view { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; }
+            .toggle-view { display: flex; flex-direction: column; gap: 6px; padding: 6px; }
+            .toggle-row { display: flex; flex-wrap: wrap; gap: 6px; }
             .match-grid { min-width: 420px; }
             input, select { font-size: 16px; }
         }
@@ -384,7 +391,7 @@
             color: #e6e6e6; 
             border-color: #444; 
         }
-        body.dark-mode .toggle-view { background: #262626; }
+        body.dark-mode .toggle-view { background: #262626; flex-direction: column; }
         body.dark-mode .toggle-view button { color: #e6e6e6; }
         body.dark-mode .toggle-view button.active { background: #667eea; color: white; }
         body.dark-mode label { color: #ccc; }
@@ -516,14 +523,18 @@
             <div class="card">
                 <h2>Leaderboard</h2>
                 <div class="toggle-view">
-                    <button class="active" onclick="switchLeaderboardView('overall')">Overall</button>
-                    <button onclick="switchLeaderboardView('today')">Today</button>
-                    <button onclick="switchLeaderboardView('white')">⚪ White</button>
-                    <button onclick="switchLeaderboardView('black')">⚫ Black</button>
-                    <button onclick="switchLeaderboardView('no-timer')">No Timer</button>
-                    <button onclick="switchLeaderboardView('1min')">1 min</button>
-                    <button onclick="switchLeaderboardView('5min')">5 min</button>
-                    <button onclick="switchLeaderboardView('10min')">10 min</button>
+                    <div class="toggle-row">
+                        <button class="active" onclick="switchLeaderboardView('overall')">📊 Overall</button>
+                        <button onclick="switchLeaderboardView('today')">📅 Today</button>
+                        <button onclick="switchLeaderboardView('white')">⚪ White</button>
+                        <button onclick="switchLeaderboardView('black')">⚫ Black</button>
+                    </div>
+                    <div class="toggle-row">
+                        <button onclick="switchLeaderboardView('no-timer')">∞ No Timer</button>
+                        <button onclick="switchLeaderboardView('1min')">⚡ 1 min</button>
+                        <button onclick="switchLeaderboardView('5min')">⏱️ 5 min</button>
+                        <button onclick="switchLeaderboardView('10min')">⏲️ 10 min</button>
+                    </div>
                 </div>
                 <ul id="leaderboard" class="leaderboard"></ul>
             </div>
