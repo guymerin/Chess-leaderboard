@@ -655,23 +655,24 @@
 
         // Initialize from JSON file and localStorage
         async function init() {
-            // Try to load from chess-data.json first
+            // Always fetch latest from GitHub on page load
             try {
-                const response = await fetch('chess-data.json');
+                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
+                const response = await fetch(url, { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
                     if (data.players && Array.isArray(data.players) && data.games && Array.isArray(data.games)) {
                         players = data.players;
                         games = data.games;
-                        // Update localStorage with data from JSON
+                        // Update localStorage with fresh data from GitHub
                         localStorage.setItem('chessPlayers', JSON.stringify(players));
                         localStorage.setItem('chessGames', JSON.stringify(games));
-                        console.log('Loaded data from chess-data.json');
+                        console.log('✓ Loaded latest data from GitHub');
                     }
                 }
             } catch (error) {
-                // If chess-data.json doesn't exist, load from localStorage
-                console.log('No chess-data.json found, using localStorage');
+                // If GitHub fetch fails, fall back to localStorage
+                console.log('GitHub fetch failed, loading from localStorage');
                 const savedPlayers = localStorage.getItem('chessPlayers');
                 const savedGames = localStorage.getItem('chessGames');
 
