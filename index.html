@@ -655,16 +655,16 @@
 
         // Initialize from JSON file and localStorage
         async function init() {
-            // Always fetch latest from GitHub on page load with aggressive cache-busting
+            // Always fetch latest from GitHub on page load with cache-busting
             try {
-                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
+                // Use timestamp and random to bypass all caching layers
+                const cacheBuster = Date.now() + Math.random();
+                const url = window.RAW_JSON_URL 
+                    ? `${window.RAW_JSON_URL}?cb=${cacheBuster}`
+                    : `chess-data.json?cb=${cacheBuster}`;
                 const response = await fetch(url, { 
                     cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
-                    }
+                    mode: 'cors'
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -792,14 +792,14 @@
             btn.disabled = true;
 
             try {
-                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
+                // Use timestamp and random to bypass all caching layers
+                const cacheBuster = Date.now() + Math.random();
+                const url = window.RAW_JSON_URL 
+                    ? `${window.RAW_JSON_URL}?cb=${cacheBuster}`
+                    : `chess-data.json?cb=${cacheBuster}`;
                 const res = await fetch(url, { 
                     cache: 'no-store',
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
-                    }
+                    mode: 'cors'
                 });
                 
                 if (!res.ok) {
