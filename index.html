@@ -655,10 +655,17 @@
 
         // Initialize from JSON file and localStorage
         async function init() {
-            // Always fetch latest from GitHub on page load
+            // Always fetch latest from GitHub on page load with aggressive cache-busting
             try {
                 const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
-                const response = await fetch(url, { cache: 'no-store' });
+                const response = await fetch(url, { 
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     if (data.players && Array.isArray(data.players) && data.games && Array.isArray(data.games)) {
@@ -667,12 +674,12 @@
                         // Update localStorage with fresh data from GitHub
                         localStorage.setItem('chessPlayers', JSON.stringify(players));
                         localStorage.setItem('chessGames', JSON.stringify(games));
-                        console.log('✓ Loaded latest data from GitHub');
+                        console.log(`✓ Loaded latest data from GitHub (${games.length} games)`);
                     }
                 }
             } catch (error) {
                 // If GitHub fetch fails, fall back to localStorage
-                console.log('GitHub fetch failed, loading from localStorage');
+                console.log('GitHub fetch failed, loading from localStorage', error);
                 const savedPlayers = localStorage.getItem('chessPlayers');
                 const savedGames = localStorage.getItem('chessGames');
 
@@ -786,7 +793,14 @@
 
             try {
                 const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
-                const res = await fetch(url, { cache: 'no-store' });
+                const res = await fetch(url, { 
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
                 
                 if (!res.ok) {
                     alert('Failed to fetch data from GitHub');
