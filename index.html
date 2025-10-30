@@ -322,10 +322,13 @@
         }
 
         .toggle-view {
-            display: inline-block;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
             margin-bottom: 15px;
+            margin-top: 15px;
             background: #f8f9fa;
-            padding: 5px;
+            padding: 8px;
             border-radius: 8px;
         }
 
@@ -337,6 +340,8 @@
             background: transparent;
             transition: background 0.2s;
             min-height: 44px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .toggle-view button.active {
@@ -379,6 +384,8 @@
             border-color: #444; 
         }
         body.dark-mode .toggle-view { background: #262626; }
+        body.dark-mode .toggle-view button { color: #e6e6e6; }
+        body.dark-mode .toggle-view button.active { background: #667eea; color: white; }
         body.dark-mode label { color: #ccc; }
 
         /* Refresh button */
@@ -506,13 +513,15 @@
         <div class="dashboard">
             <!-- Leaderboard -->
             <div class="card">
-                <h2>
-                    Leaderboard
-                    <div class="toggle-view">
-                        <button class="active" onclick="showOverallLeaderboard()">Overall</button>
-                        <button onclick="showTodayLeaderboard()">Today</button>
-                    </div>
-                </h2>
+                <h2>Leaderboard</h2>
+                <div class="toggle-view">
+                    <button class="active" onclick="switchLeaderboardView('overall')">Overall</button>
+                    <button onclick="switchLeaderboardView('today')">Today</button>
+                    <button onclick="switchLeaderboardView('no-timer')">No Timer</button>
+                    <button onclick="switchLeaderboardView('1min')">1 min</button>
+                    <button onclick="switchLeaderboardView('5min')">5 min</button>
+                    <button onclick="switchLeaderboardView('10min')">10 min</button>
+                </div>
                 <ul id="leaderboard" class="leaderboard"></ul>
             </div>
 
@@ -613,7 +622,7 @@
         let players = [];
         let games = [];
         let currentView = 'grid';
-        let leaderboardView = 'overall'; // 'overall' or 'today'
+        let leaderboardView = 'overall'; // 'overall', 'today', 'no-timer', '1min', '5min', '10min'
         let currentMode = 'player'; // 'player' or 'admin'
         let currentTheme = 'light'; // 'light' or 'dark'
 
@@ -954,15 +963,15 @@
         // Update leaderboard
         function updateLeaderboard() {
             const leaderboard = document.getElementById('leaderboard');
-            const stats = calculateStats(leaderboardView === 'today');
+            const stats = calculateStats(leaderboardView);
 
             let mappedPlayers = players.map(player => ({
                 name: player,
                 ...stats[player]
             }));
 
-            // When showing today's leaderboard, filter out players who haven't played today
-            if (leaderboardView === 'today') {
+            // Filter out players who haven't played in the selected view
+            if (leaderboardView !== 'overall') {
                 mappedPlayers = mappedPlayers.filter(player => player.total > 0);
             }
 
@@ -978,9 +987,13 @@
             leaderboard.innerHTML = '';
             
             if (sortedPlayers.length === 0) {
-                const message = leaderboardView === 'today' 
-                    ? 'No games played today yet' 
-                    : 'No players yet';
+                let message = 'No players yet';
+                if (leaderboardView === 'today') message = 'No games played today yet';
+                else if (leaderboardView === 'no-timer') message = 'No games with no timer yet';
+                else if (leaderboardView === '1min') message = 'No 1 min games yet';
+                else if (leaderboardView === '5min') message = 'No 5 min games yet';
+                else if (leaderboardView === '10min') message = 'No 10 min games yet';
+                
                 leaderboard.innerHTML = `<li style="text-align: center; color: #999;">${message}</li>`;
             } else {
                 sortedPlayers.forEach((player, index) => {
@@ -997,7 +1010,7 @@
         }
 
         // Calculate player statistics
-        function calculateStats(onlyToday = false) {
+        function calculateStats(viewType = 'overall') {
             const stats = {};
             const today = new Date().toISOString().split('T')[0];
 
@@ -1006,8 +1019,20 @@
                 stats[player] = { wins: 0, draws: 0, losses: 0, total: 0, points: 50 };
             });
 
-            // Filter games by today if needed
-            const gamesToProcess = onlyToday ? games.filter(game => game.date === today) : games;
+            // Filter games based on view type
+            let gamesToProcess = games;
+            
+            if (viewType === 'today') {
+                gamesToProcess = games.filter(game => game.date === today);
+            } else if (viewType === 'no-timer') {
+                gamesToProcess = games.filter(game => game.gameType === 'No timer');
+            } else if (viewType === '1min') {
+                gamesToProcess = games.filter(game => game.gameType === '1 min game');
+            } else if (viewType === '5min') {
+                gamesToProcess = games.filter(game => game.gameType === '5 min game');
+            } else if (viewType === '10min') {
+                gamesToProcess = games.filter(game => game.gameType === '10 min game');
+            }
 
             gamesToProcess.forEach(game => {
                 const { player1, player2, result } = game;
@@ -1190,25 +1215,24 @@
             document.querySelectorAll('.toggle-view button')[1].classList.add('active');
         }
 
-        // Show overall leaderboard
-        function showOverallLeaderboard() {
-            leaderboardView = 'overall';
+        // Switch leaderboard view
+        function switchLeaderboardView(viewType) {
+            leaderboardView = viewType;
+            
+            // Update active state of all buttons
             const buttons = document.querySelectorAll('.card:first-child .toggle-view button');
-            if (buttons.length >= 2) {
-                buttons[0].classList.add('active');
-                buttons[1].classList.remove('active');
-            }
-            updateLeaderboard();
-        }
-
-        // Show today's leaderboard
-        function showTodayLeaderboard() {
-            leaderboardView = 'today';
-            const buttons = document.querySelectorAll('.card:first-child .toggle-view button');
-            if (buttons.length >= 2) {
-                buttons[0].classList.remove('active');
-                buttons[1].classList.add('active');
-            }
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Find and activate the clicked button
+            buttons.forEach(button => {
+                const buttonView = button.getAttribute('onclick').match(/switchLeaderboardView\('(.+?)'\)/);
+                if (buttonView && buttonView[1] === viewType) {
+                    button.classList.add('active');
+                }
+            });
+            
             updateLeaderboard();
         }
 
