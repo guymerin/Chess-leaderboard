@@ -639,6 +639,7 @@
         let leaderboardView = 'overall'; // 'overall', 'today', 'white', 'black', 'no-timer', '1min', '5min', '10min'
         let currentMode = 'player'; // 'player' or 'admin'
         let currentTheme = 'light'; // 'light' or 'dark'
+        let autoRefreshTimer = null; // Auto-refresh timer
 
         // Theme management
         function toggleTheme() {
@@ -738,6 +739,9 @@
 
             // Keep multiple tabs in sync via localStorage events
             setupStorageSync();
+
+            // Start auto-refresh timer
+            startAutoRefresh();
         }
 
         // Update result dropdown options with player names
@@ -815,6 +819,28 @@
             });
         }
 
+        // Start auto-refresh timer (5 minutes)
+        function startAutoRefresh() {
+            // Clear any existing timer
+            if (autoRefreshTimer) {
+                clearInterval(autoRefreshTimer);
+            }
+            
+            // Set up auto-refresh every 5 minutes (300000ms)
+            autoRefreshTimer = setInterval(() => {
+                console.log('Auto-refreshing data from GitHub...');
+                manualRefresh();
+            }, 300000); // 5 minutes
+            
+            console.log('Auto-refresh timer started (5 minutes)');
+        }
+
+        // Reset auto-refresh timer
+        function resetAutoRefreshTimer() {
+            console.log('Resetting auto-refresh timer...');
+            startAutoRefresh();
+        }
+
         // Manual refresh - force fetch from GitHub
         async function manualRefresh() {
             const btn = document.getElementById('refreshBtn');
@@ -851,6 +877,9 @@
                 render();
                 
                 console.log('✓ Manually refreshed from GitHub');
+                
+                // Reset auto-refresh timer after manual refresh
+                resetAutoRefreshTimer();
                 
                 // Brief success feedback
                 btn.textContent = '✓';
@@ -923,6 +952,9 @@
             save();
             showAlert('addGameAlert', 'Game recorded successfully!', 'success');
             render();
+            
+            // Reset the auto-refresh timer since user just submitted a game
+            resetAutoRefreshTimer();
         }
 
         // Remove a player
