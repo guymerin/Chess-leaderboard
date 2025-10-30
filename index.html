@@ -518,6 +518,8 @@
                 <div class="toggle-view">
                     <button class="active" onclick="switchLeaderboardView('overall')">Overall</button>
                     <button onclick="switchLeaderboardView('today')">Today</button>
+                    <button onclick="switchLeaderboardView('white')">⚪ White</button>
+                    <button onclick="switchLeaderboardView('black')">⚫ Black</button>
                     <button onclick="switchLeaderboardView('no-timer')">No Timer</button>
                     <button onclick="switchLeaderboardView('1min')">1 min</button>
                     <button onclick="switchLeaderboardView('5min')">5 min</button>
@@ -623,7 +625,7 @@
         let players = [];
         let games = [];
         let currentView = 'grid';
-        let leaderboardView = 'overall'; // 'overall', 'today', 'no-timer', '1min', '5min', '10min'
+        let leaderboardView = 'overall'; // 'overall', 'today', 'white', 'black', 'no-timer', '1min', '5min', '10min'
         let currentMode = 'player'; // 'player' or 'admin'
         let currentTheme = 'light'; // 'light' or 'dark'
 
@@ -990,6 +992,8 @@
             if (sortedPlayers.length === 0) {
                 let message = 'No players yet';
                 if (leaderboardView === 'today') message = 'No games played today yet';
+                else if (leaderboardView === 'white') message = 'No games as white yet';
+                else if (leaderboardView === 'black') message = 'No games as black yet';
                 else if (leaderboardView === 'no-timer') message = 'No games with no timer yet';
                 else if (leaderboardView === '1min') message = 'No 1 min games yet';
                 else if (leaderboardView === '5min') message = 'No 5 min games yet';
@@ -1035,28 +1039,64 @@
                 gamesToProcess = games.filter(game => game.gameType === '10 min game');
             }
 
-            gamesToProcess.forEach(game => {
-                const { player1, player2, result } = game;
-                
-                if (result === 1) {
-                    stats[player1].wins++;
-                    stats[player2].losses++;
-                    stats[player1].points += 1;  // +1 for win
-                    stats[player2].points += -1; // -1 for loss
-                } else if (result === -1) {
-                    stats[player2].wins++;
-                    stats[player1].losses++;
-                    stats[player2].points += 1;  // +1 for win
-                    stats[player1].points += -1; // -1 for loss
-                } else {
-                    stats[player1].draws++;
-                    stats[player2].draws++;
-                    // 0 points for draw (no change)
-                }
+            // Handle white/black specific views
+            if (viewType === 'white') {
+                // Only count games where player was white (player1)
+                gamesToProcess.forEach(game => {
+                    const { player1, result } = game;
+                    
+                    if (result === 1) {
+                        stats[player1].wins++;
+                        stats[player1].points += 1;
+                    } else if (result === -1) {
+                        stats[player1].losses++;
+                        stats[player1].points += -1;
+                    } else {
+                        stats[player1].draws++;
+                    }
+                    stats[player1].total++;
+                });
+            } else if (viewType === 'black') {
+                // Only count games where player was black (player2)
+                gamesToProcess.forEach(game => {
+                    const { player2, result } = game;
+                    
+                    if (result === -1) {
+                        stats[player2].wins++;
+                        stats[player2].points += 1;
+                    } else if (result === 1) {
+                        stats[player2].losses++;
+                        stats[player2].points += -1;
+                    } else {
+                        stats[player2].draws++;
+                    }
+                    stats[player2].total++;
+                });
+            } else {
+                // For all other views, count games for both players
+                gamesToProcess.forEach(game => {
+                    const { player1, player2, result } = game;
+                    
+                    if (result === 1) {
+                        stats[player1].wins++;
+                        stats[player2].losses++;
+                        stats[player1].points += 1;  // +1 for win
+                        stats[player2].points += -1; // -1 for loss
+                    } else if (result === -1) {
+                        stats[player2].wins++;
+                        stats[player1].losses++;
+                        stats[player2].points += 1;  // +1 for win
+                        stats[player1].points += -1; // -1 for loss
+                    } else {
+                        stats[player1].draws++;
+                        stats[player2].draws++;
+                        // 0 points for draw (no change)
+                    }
 
-                stats[player1].total++;
-                stats[player2].total++;
-            });
+                    stats[player1].total++;
+                    stats[player2].total++;
+                });
+            }
 
             return stats;
         }
