@@ -358,16 +358,21 @@
         }
 
         /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            body { color: #e6e6e6; }
-            .card { background: #1f1f1f; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-            .leaderboard li { background: #262626; }
-            .match-grid td { background: #1f1f1f; border-color: #333; }
-            .match-grid td:first-child { background: #262626; }
-            .game-item { background: #262626; }
-            .alert-success { background: #20462a; color: #b8f7c2; border-color: #2b5a36; }
-            .alert-error { background: #4a1f24; color: #ffd1d6; border-color: #6a2a31; }
+        body.dark-mode { color: #e6e6e6; }
+        body.dark-mode .card { background: #1f1f1f; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        body.dark-mode .leaderboard li { background: #262626; }
+        body.dark-mode .match-grid td { background: #1f1f1f; border-color: #333; }
+        body.dark-mode .match-grid td:first-child { background: #262626; }
+        body.dark-mode .game-item { background: #262626; }
+        body.dark-mode .alert-success { background: #20462a; color: #b8f7c2; border-color: #2b5a36; }
+        body.dark-mode .alert-error { background: #4a1f24; color: #ffd1d6; border-color: #6a2a31; }
+        body.dark-mode input, body.dark-mode select { 
+            background: #262626; 
+            color: #e6e6e6; 
+            border-color: #444; 
         }
+        body.dark-mode .toggle-view { background: #262626; }
+        body.dark-mode label { color: #ccc; }
 
         /* Refresh button */
         .refresh-btn {
@@ -406,6 +411,37 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: calc(20px + env(safe-area-inset-top));
+            right: calc(20px + env(safe-area-inset-right));
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         /* Mode toggle */
@@ -551,6 +587,11 @@
         </div>
     </div>
 
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+        🌙
+    </button>
+
     <!-- Floating Refresh Button -->
     <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()" title="Refresh data from GitHub">
         🔄
@@ -567,6 +608,31 @@
         let currentView = 'grid';
         let leaderboardView = 'overall'; // 'overall' or 'today'
         let currentMode = 'player'; // 'player' or 'admin'
+        let currentTheme = 'light'; // 'light' or 'dark'
+
+        // Theme management
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+            localStorage.setItem('chessTheme', currentTheme);
+        }
+
+        function applyTheme(theme) {
+            const body = document.body;
+            const themeBtn = document.getElementById('themeToggle');
+            
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+                themeBtn.textContent = '☀️';
+                themeBtn.title = 'Switch to light mode';
+            } else {
+                body.classList.remove('dark-mode');
+                themeBtn.textContent = '🌙';
+                themeBtn.title = 'Switch to dark mode';
+            }
+            
+            console.log(`Switched to ${theme} theme`);
+        }
 
         // Mode management
         function setMode(mode) {
@@ -624,6 +690,11 @@
             // Restore saved mode (default to player mode)
             const savedMode = localStorage.getItem('chessMode') || 'player';
             setMode(savedMode);
+
+            // Restore saved theme (default to light mode)
+            const savedTheme = localStorage.getItem('chessTheme') || 'light';
+            currentTheme = savedTheme;
+            applyTheme(currentTheme);
 
             render();
 
@@ -1045,19 +1116,16 @@
                             const draws = playerGames.filter(g => g.result === 0).length;
                             const losses = playerGames.length - wins - draws;
                             
-                            let resultText = '';
+                            // Always use W-D-L format
+                            const resultText = `${wins}-${draws}-${losses}`;
+                            
+                            // Color based on performance
                             if (wins > losses) {
                                 cell.className = 'win';
-                                resultText = `${wins}-${losses}${draws > 0 ? '-' + draws : ''}`;
                             } else if (losses > wins) {
                                 cell.className = 'loss';
-                                resultText = `${wins}-${losses}${draws > 0 ? '-' + draws : ''}`;
-                            } else if (draws > 0) {
-                                cell.className = 'draw';
-                                resultText = `${wins}-${losses}-${draws}`;
                             } else {
                                 cell.className = 'draw';
-                                resultText = `${wins}-${losses}`;
                             }
                             
                             cell.innerHTML = `<span>${resultText}</span><div class="match-count">(${count})</div>`;
