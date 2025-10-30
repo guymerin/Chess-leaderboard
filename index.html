@@ -698,8 +698,7 @@
 
             render();
 
-            // Start background refresh so other devices/tabs see changes without reload
-            startAutoRefresh();
+            // Keep multiple tabs in sync via localStorage events
             setupStorageSync();
         }
 
@@ -764,46 +763,6 @@
             }
         }
 
-        // --- Auto refresh from GitHub Pages ---
-        const AUTO_REFRESH_INTERVAL_MS = 15000; // 15s
-        let autoRefreshTimer = null;
-
-        function startAutoRefresh() {
-            clearInterval(autoRefreshTimer);
-            autoRefreshTimer = setInterval(fetchRemoteDataIfChanged, AUTO_REFRESH_INTERVAL_MS);
-        }
-
-        async function fetchRemoteDataIfChanged() {
-            try {
-                // Don't fetch if we just synced (avoid overwriting our own changes with stale data)
-                const timeSinceLastSync = Date.now() - lastSyncTime;
-                if (timeSinceLastSync < 10000) {
-                    console.log('Skipping fetch (recently synced)');
-                    return;
-                }
-
-                // Fetch from raw GitHub to bypass Pages CDN caching
-                const url = window.RAW_JSON_URL || ('chess-data.json?ts=' + Date.now());
-                const res = await fetch(url, { cache: 'no-store' });
-                if (!res.ok) return;
-                const data = await res.json();
-                if (!data || !Array.isArray(data.players) || !Array.isArray(data.games)) return;
-
-                const localStr = JSON.stringify({ players, games });
-                const remoteStr = JSON.stringify({ players: data.players, games: data.games });
-                if (remoteStr !== localStr) {
-                    console.log('📥 Remote data changed, updating UI from another device...');
-                    players = data.players;
-                    games = data.games;
-                    // Update localStorage WITHOUT triggering another sync
-                    localStorage.setItem('chessPlayers', JSON.stringify(players));
-                    localStorage.setItem('chessGames', JSON.stringify(games));
-                    render();
-                }
-            } catch (err) {
-                console.error('Fetch remote data failed:', err);
-            }
-        }
 
         // Keep multiple tabs in sync instantly
         function setupStorageSync() {
@@ -843,6 +802,7 @@
                 games = data.games;
                 localStorage.setItem('chessPlayers', JSON.stringify(players));
                 localStorage.setItem('chessGames', JSON.stringify(games));
+                lastSyncTime = 0; // Reset so we don't think we just synced
                 render();
                 
                 console.log('✓ Manually refreshed from GitHub');
